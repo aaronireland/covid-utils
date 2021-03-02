@@ -1,8 +1,6 @@
-# Go binaries
-test-sms
 rite-aid-sites
-vaccine-finder
-
+test-sms
+!test-sms/
 # Binaries for programs and plugins
 *.exe
 *.exe~
