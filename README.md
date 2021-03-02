@@ -5,9 +5,7 @@
 
 <h1 align="center">Covid-19 Utilites</h1>
 
-<p align="center"><i>A CLI and API Clients for Covid-19-related data, written in Go.</i></p>
-
-<a href='https://github.com/jpoles1/gopherbadger' target='_blank'>![gopherbadger-tag-do-not-edit](https://img.shields.io/badge/Go%20Coverage-100%25-brightgreen.svg?longCache=true&style=flat)</a>
+<p align="center"><i>CLI and API Clients for Covid-19-related data, written in Go.</i></p>
 
 ## Usage
 
@@ -19,6 +17,12 @@ go build -o rite-aid-site ./cmd/vaccine-finder
 
 # restrict to only a certain state
 ./rite-aid-sites -state PA "123 Main St. Anytown, PA 17000" 12345
+```
+
+Add `-debug=true` to add verbose logging and pick a random site to text (for testing - this won't be a real available appointment)
+
+```shell
+./rite-aid-sites -debug=true -sms 2155550101 19002
 ```
 
 Add SMS alerts using a [Twilio account](https://www.twilio.com/sms):

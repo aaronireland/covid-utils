@@ -109,7 +109,7 @@ func main() {
 
 	for ix, store := range sitesToCheck {
 
-		log.Infof("Store #%d: %s %s, %s, %s", store.Number, store.Address, store.City, store.State, store.Zipcode)
+		log.Debugf("Store #%d: %s %s, %s, %s", store.Number, store.Address, store.City, store.State, store.Zipcode)
 		waitFor := time.Duration(r.Intn(500) + 75)
 		time.Sleep(time.Millisecond * waitFor)
 		first, second, err := riteAidAPI.AppointmentsAvailable(ctx, store)
