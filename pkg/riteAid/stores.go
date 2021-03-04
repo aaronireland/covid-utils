@@ -96,8 +96,9 @@ func (c *API) GetCovidVaccinationSites(ctx context.Context, zipCode string, radi
 	filterZip := api.Param{"address", zipCode}
 	filterRadius := api.Param{"radius", strconv.Itoa(radius)}
 	covidVaccineServiceSites := api.Param{"attrFilter", CovidVaccineService}
+	fetchMech := api.Param{"fetchMechanismVersion", "2"}
 
-	req, err := http.NewRequest("GET", c.URI("stores/getStores", filterZip, filterRadius, covidVaccineServiceSites), nil)
+	req, err := http.NewRequest("GET", c.URI("stores/getStores", filterZip, filterRadius, covidVaccineServiceSites, fetchMech), nil)
 	if err != nil {
 		return stores, err
 	}

@@ -7,6 +7,7 @@ package main
 import (
 	"context"
 	"flag"
+	"fmt"
 	"math/rand"
 	"os"
 	"strings"
@@ -35,7 +36,6 @@ func init() {
 	debugFlag := flag.Bool("debug", false, "Set to test SMS and add verbose logging")
 	state = flag.String("state", "", "Only search sites in this state")
 	phoneNumbers = flag.String("sms", "", "A comma-separated list of phones to alert via SMS")
-	debug = *debugFlag
 	flag.Parse()
 	args := flag.Args()
 
@@ -49,6 +49,7 @@ func init() {
 
 	smsRecipients = append(smsRecipients, strings.Split(*phoneNumbers, ",")...)
 
+	debug = *debugFlag
 	if debug {
 		log.SetLevel(log.DebugLevel)
 	}
@@ -75,7 +76,7 @@ func main() {
 	var sitesToCheck []riteaid.Store
 	r := rand.New(rand.NewSource(time.Now().UnixNano()))
 
-	log.Infof("Checking for Rite-Aid stores within %d mile radius of %d addresses", RadiusInMiles, len(addresses))
+	log.WithField("time", time.Now().Local().Format(time.UnixDate)).Infof("Checking for Rite-Aid stores within %d mile radius of %d addresses", RadiusInMiles, len(addresses))
 	for _, address := range addresses {
 		if len(address) < 5 {
 			continue
@@ -105,7 +106,8 @@ func main() {
 
 	log.Infof("Found %d sites", len(sitesToCheck))
 	var sitesWithAvailability []riteaid.Store
-	randomSite := r.Intn(len(sitesToCheck))
+	randomChoice := r.Intn(len(sitesToCheck))
+	var randomSite riteaid.Store
 
 	for ix, store := range sitesToCheck {
 
@@ -116,16 +118,37 @@ func main() {
 
 		if err != nil {
 			log.Errorf("Failed to check vaccination availability at Rite-Aid Store %d: %s", store.Number, err)
+			if sendSMS {
+				for _, to := range smsRecipients {
+					_ = twilioAPI.SendSMS(ctx, to, fmt.Sprintf("Failed to check vaccination ability at Rite-Aid Store #%d: %s", store.Number, err))
+				}
+			}
 			continue
 		}
 
-		if first || second || (debug && ix == randomSite) {
+		if first || second {
 			sitesWithAvailability = append(sitesWithAvailability, store)
+
+			if debug && ix == randomChoice {
+				randomSite = store
+			}
+		} else if debug && ix == randomChoice {
+			randomSite = store
 		}
 	}
 
 	if len(sitesWithAvailability) == 0 {
 		log.Info("No vaccination appointment availability...")
+		if debug && sendSMS {
+			for _, to := range smsRecipients {
+				err := twilioAPI.SendSMS(ctx, to, randomSite.Description())
+				if err != nil {
+					log.WithField("sms_phone", to).WithError(err).Error("SMS notification failed!")
+				}
+
+			}
+
+		}
 	} else {
 		s := "sites"
 		if len(sitesWithAvailability) == 1 {

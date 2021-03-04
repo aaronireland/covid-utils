@@ -80,6 +80,8 @@ func (c *Client) Do(req *http.Request, resp interface{}) error {
 		req.Header.Set("Content-Type", c.contentType)
 	}
 
+	req.Header.Set("Cache-Control", "no-cache")
+
 	res, err := c.HTTPClient.Do(req)
 	if err != nil {
 		return fmt.Errorf("Unable to get response: %s", err)

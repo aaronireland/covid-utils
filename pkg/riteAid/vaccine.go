@@ -23,7 +23,9 @@ type CheckSlotsResponse struct {
 	ErrCode           string `json:"ErrCde"`
 	ErrMessage        string `json:"ErrMsg"`
 	ErrMessageDetails string `json:"ErrMsgDtl"`
-	Data              Slots  `json:"slots"`
+	Data              struct {
+		Slots Slots `json:"slots"`
+	} `json:"Data"`
 }
 
 func (c *API) AppointmentsAvailable(ctx context.Context, store Store) (firstDose, secondDose bool, err error) {
@@ -46,5 +48,5 @@ func (c *API) AppointmentsAvailable(ctx context.Context, store Store) (firstDose
 		return false, false, err
 	}
 
-	return resp.Data.FirstDose, resp.Data.SecondDose, nil
+	return resp.Data.Slots.FirstDose, resp.Data.Slots.SecondDose, nil
 }
